@@ -28,7 +28,7 @@ task copyScripts(type: Copy) {
 
 task writeScriptRunFile {
     mkdir("${scriptBuildDir}/bin")
-    file("${scriptBuildDir}/bin/run.sh") << "groovy -cp '../lib/*' ../Engine.groovy $@" // TODO
+    file("${scriptBuildDir}/bin/run.sh") << "groovy -cp '../lib/*' ../Engine.groovy" // TODO  绝对路径
     doLast {
         println("write script file done")
     }
