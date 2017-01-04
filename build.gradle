@@ -2,6 +2,7 @@ group 'com.chaos'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'groovy'
+apply plugin: 'application'
 
 repositories {
     mavenCentral()
@@ -12,7 +13,48 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
 
-// TODO package groovy script and generate run bin
+mainClassName = 'Engine'
 
+ext {
+    scriptBuildDir = "build/distributions/rule.engine-${version}/groovy"
+}
 
-// java -cp 'src:.:lib/*' groovy.ui.GroovyMain src/com/example/MyScript.groovy
+task copyScripts(type: Copy) {
+    from 'src/main/groovy'
+    into scriptBuildDir
+}
+
+task writeScriptRunFile {
+    mkdir("${scriptBuildDir}/bin")
+    file("${scriptBuildDir}/bin/run.sh") << "groovy -cp '../lib/*' ../Engine.groovy"
+    doLast {
+        println("write script file done")
+    }
+}
+
+task unzipTar(type: Copy) {
+    from tarTree(file("build/distributions/rule.engine-${version}.tar"))
+    into 'build/distributions'
+}
+
+task copyScriptsDependencies(type: Copy) {
+    from("build/distributions/rule.engine-${version}/lib") {
+        exclude "rule.engine-${version}.jar"
+        exclude "groovy-all-2.3.11.jar"
+    }
+    into "${scriptBuildDir}/lib"
+}
+
+// unzipTar -> copyScriptsDependencies -> copyScripts -> writeScriptRunFile
+
+task packageApp (type: Tar) {
+    archiveName = "rule.engine-${version}-all.tar"
+    from "build/distributions/rule.engine-${version}"
+    into "rule.engine-${version}-all"
+}
+
+packageApp.dependsOn writeScriptRunFile
+writeScriptRunFile.dependsOn copyScripts
+copyScripts.dependsOn copyScriptsDependencies
+copyScriptsDependencies.dependsOn unzipTar
+unzipTar.dependsOn distTar
