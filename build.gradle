@@ -6,13 +6,14 @@ apply plugin: 'application'
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.3.11'
-    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+
     compile group: 'com.google.code.gson', name: 'gson', version: '2.8.0'
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile group: 'io.github.javaconductor', name: 'gserv', version: '1.0.0'
 }
 
 mainClassName = 'Engine'
@@ -28,7 +29,7 @@ task copyScripts(type: Copy) {
 
 task writeScriptRunFile {
     mkdir("${scriptBuildDir}/bin")
-    file("${scriptBuildDir}/bin/run.sh") << "groovy -cp '../lib/*' ../Engine.groovy" // TODO  绝对路径
+    file("${scriptBuildDir}/bin/run.sh") << 'RUNTIME_PATH=;\ngroovy -cp \"$RUNTIME_PATH/lib/*\" $RUNTIME_PATH/Engine.groovy'
     doLast {
         println("write script file done")
     }
@@ -42,7 +43,7 @@ task unzipTar(type: Copy) {
 task copyScriptsDependencies(type: Copy) {
     from("build/distributions/rule.engine-${version}/lib") {
         exclude "rule.engine-${version}.jar"
-        exclude "groovy-all-2.3.11.jar"
+        exclude "groovy-all-*.jar"
     }
     into "${scriptBuildDir}/lib"
 }

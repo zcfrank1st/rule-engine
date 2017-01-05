@@ -1,7 +1,6 @@
 package implement
 
 import com.google.gson.Gson
-import core.model.Rule
 import core.strategy.RuleManipulateStrategy
 
 /**
@@ -12,6 +11,6 @@ class DemoStrategy implements RuleManipulateStrategy<Object> {
 
     @Override
     Object calculate(Object input) {
-        return gson.toJson(new Rule(1))
+        return "hello"
     }
 }
